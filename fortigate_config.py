@@ -2,7 +2,6 @@
 
 import os
 import sys
-import json
 import argparse
 import requests
 from urllib.parse import urljoin
@@ -10,15 +9,7 @@ from urllib.parse import urljoin
 requests.packages.urllib3.disable_warnings()
 
 
-def api_request(
-    scheme: str,
-    host: str,
-    port: int,
-    token: str,
-    method: str,
-    path: str,
-    **kwargs,
-):
+def api_request(scheme, host, port, token, method, path, **kwargs):
     base = f"{scheme}://{host}:{port}/"
     url = urljoin(base, path)
 
@@ -27,7 +18,7 @@ def api_request(
         "Content-Type": "application/json",
     }
 
-    resp = requests.request(
+    response = requests.request(
         method,
         url,
         headers=headers,
@@ -36,27 +27,15 @@ def api_request(
         **kwargs,
     )
 
+    response.raise_for_status()
+
     try:
-        data = resp.json()
+        return response.json()
     except Exception:
-        resp.raise_for_status()
-        return resp
-
-    if not resp.ok:
-        raise RuntimeError(
-            f"API error: HTTP {resp.status_code}, body={json.dumps(data, ensure_ascii=False)}"
-        )
-
-    return data
+        return {}
 
 
-def set_hostname(
-    scheme: str,
-    host: str,
-    port: int,
-    token: str,
-    hostname: str,
-):
+def set_hostname(scheme, host, port, token, hostname):
     payload = {"hostname": hostname}
 
     return api_request(
@@ -70,12 +49,7 @@ def set_hostname(
     )
 
 
-def get_hostname(
-    scheme: str,
-    host: str,
-    port: int,
-    token: str,
-):
+def get_hostname(scheme, host, port, token):
     data = api_request(
         scheme,
         host,
@@ -85,14 +59,11 @@ def get_hostname(
         "api/v2/cmdb/system/global",
     )
 
-    results = data.get("results", {})
-    return results.get("hostname", "")
+    return data.get("results", {}).get("hostname", "")
 
 
 def main():
-    parser = argparse.ArgumentParser(
-        description="FortiGate hostname configuration"
-    )
+    parser = argparse.ArgumentParser()
 
     parser.add_argument(
         "--host",
@@ -111,25 +82,22 @@ def main():
 
     parser.add_argument(
         "--scheme",
-        default=os.getenv("FGT_SCHEME", "https"),
-        choices=["http", "https"],
+        default="https",
     )
 
     parser.add_argument(
         "--port",
         type=int,
-        default=int(os.getenv("FGT_PORT", "443")),
+        default=443,
     )
 
     args = parser.parse_args()
 
     if not args.host:
-        print("FGT_HOST is required", file=sys.stderr)
-        sys.exit(2)
+        sys.exit("FGT_HOST is required")
 
     if not args.token:
-        print("FGT_API_TOKEN is required", file=sys.stderr)
-        sys.exit(2)
+        sys.exit("FGT_API_TOKEN is required")
 
     print(
         f"[INFO] target={args.scheme}://{args.host}:{args.port}/api/v2 ..."
@@ -143,15 +111,8 @@ def main():
         args.hostname,
     )
 
-    current_name = get_hostname(
-        args.scheme,
-        args.host,
-        args.port,
-        args.token,
-    )
-
     print(
-        f"Hostname updated: {args.host} -> {current_name}"
+        f"Hostname updated: {args.host} -> {args.hostname}"
     )
 
 
