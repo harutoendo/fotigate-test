@@ -3,7 +3,7 @@ version: 2.1
 jobs:
   config_fortigate:
     machine: true
-    resource_class: harutoendo/fotigate-resouce
+    resource_class: harutoendo/fotigate-resource
 
     steps:
       - checkout
@@ -18,20 +18,16 @@ jobs:
 
             python -m pip install --upgrade pip
             pip install requests
+
       - run:
-         name: Change FortiGate hostname via API
-         command: |
-          set -euo pipefail
+          name: Change FortiGate hostname via API
+          command: |
+            set -euo pipefail
 
-            pwd
-            ls -la
-            find . -maxdepth 1 -type f
+            . .venv/bin/activate
 
-             . .venv/bin/activate
-
-             python fortigate_config.py \
-               --hostname "GP-FortiGate-endo"
-
+            python fortigate_config.py \
+              --hostname "GP-FortiGate-endo"
 
 workflows:
   config:

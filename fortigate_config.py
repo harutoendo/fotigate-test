@@ -36,7 +36,9 @@ def api_request(scheme, host, port, token, method, path, **kwargs):
 
 
 def set_hostname(scheme, host, port, token, hostname):
-    payload = {"hostname": hostname}
+    payload = {
+        "hostname": hostname
+    }
 
     return api_request(
         scheme,
@@ -82,22 +84,24 @@ def main():
 
     parser.add_argument(
         "--scheme",
-        default="https",
+        default=os.getenv("FGT_SCHEME", "https"),
     )
 
     parser.add_argument(
         "--port",
         type=int,
-        default=443,
+        default=int(os.getenv("FGT_PORT", "443")),
     )
 
     args = parser.parse_args()
 
     if not args.host:
-        sys.exit("FGT_HOST is required")
+        print("FGT_HOST is required", file=sys.stderr)
+        sys.exit(2)
 
     if not args.token:
-        sys.exit("FGT_API_TOKEN is required")
+        print("FGT_API_TOKEN is required", file=sys.stderr)
+        sys.exit(2)
 
     print(
         f"[INFO] target={args.scheme}://{args.host}:{args.port}/api/v2 ..."
@@ -111,8 +115,15 @@ def main():
         args.hostname,
     )
 
+    hostname = get_hostname(
+        args.scheme,
+        args.host,
+        args.port,
+        args.token,
+    )
+
     print(
-        f"Hostname updated: {args.host} -> {args.hostname}"
+        f"Hostname updated: {args.host} -> {hostname}"
     )
 
 
