@@ -27,6 +27,21 @@ jobs:
               --scheme https \
               --port "${FGT_PORT:-443}" \
               --hostname "GP-FortiGate"
+      - run:
+    name: Change FortiGate hostname via API
+    command: |
+      set -euo pipefail
+
+      pwd
+      ls -la
+      find . -name "*.py"
+
+      . .venv/bin/activate
+
+      python fortigate_config.py \
+        --scheme https \
+        --port "${FGT_PORT:-443}" \
+        --hostname "GP-FortiGate"        
 
 workflows:
   config:
