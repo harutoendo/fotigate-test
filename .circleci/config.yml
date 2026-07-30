@@ -4,6 +4,7 @@ jobs:
   config_fortigate:
     machine: true
     resource_class: harutoendo/fotigate-resouce
+
     steps:
       - checkout
 
@@ -11,8 +12,10 @@ jobs:
           name: Setup Python virtual environment
           command: |
             set -euo pipefail
+
             python3 -m venv .venv
             . .venv/bin/activate
+
             python -m pip install --upgrade pip
             pip install requests
 
@@ -20,28 +23,20 @@ jobs:
           name: Change FortiGate hostname via API
           command: |
             set -euo pipefail
+
+            pwd
+            ls -la
+            find . -name "*.py"
+
             . .venv/bin/activate
+
             : "${FGT_HOST:?FGT_HOST is required}"
             : "${FGT_API_TOKEN:?FGT_API_TOKEN is required}"
+
             python fortigate_config.py \
               --scheme https \
               --port "${FGT_PORT:-443}" \
               --hostname "GP-FortiGate"
-      - run:
-    name: Change FortiGate hostname via API
-    command: |
-      set -euo pipefail
-
-      pwd
-      ls -la
-      find . -name "*.py"
-
-      . .venv/bin/activate
-
-      python fortigate_config.py \
-        --scheme https \
-        --port "${FGT_PORT:-443}" \
-        --hostname "GP-FortiGate"        
 
 workflows:
   config:
