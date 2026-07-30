@@ -18,21 +18,20 @@ jobs:
 
             python -m pip install --upgrade pip
             pip install requests
-
       - run:
-          name: Change FortiGate hostname via API
-          command: |
-            set -euo pipefail
+         name: Change FortiGate hostname via API
+         command: |
+          set -euo pipefail
 
-            . .venv/bin/activate
+            pwd
+            ls -la
+            find . -maxdepth 1 -type f
 
-            : "${FGT_HOST:?FGT_HOST is required}"
-            : "${FGT_API_TOKEN:?FGT_API_TOKEN is required}"
+             . .venv/bin/activate
 
-            python fotigate_config.py \
-              --host "${FGT_HOST}" \
-              --token "${FGT_API_TOKEN}" \
-              --hostname "GP-FortiGate-endo"
+             python fortigate_config.py \
+               --hostname "GP-FortiGate-endo"
+
 
 workflows:
   config:
