@@ -24,19 +24,15 @@ jobs:
           command: |
             set -euo pipefail
 
-            pwd
-            ls -la
-            find . -name "*.py"
-
             . .venv/bin/activate
 
             : "${FGT_HOST:?FGT_HOST is required}"
             : "${FGT_API_TOKEN:?FGT_API_TOKEN is required}"
 
-            python fortigate_config.py \
-              --scheme https \
-              --port "${FGT_PORT:-443}" \
-              --hostname "GP-FortiGate"
+            python fotigate_config.py \
+              --host "${FGT_HOST}" \
+              --token "${FGT_API_TOKEN}" \
+              --hostname "GP-FortiGate-endo"
 
 workflows:
   config:
