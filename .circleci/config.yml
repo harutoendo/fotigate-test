@@ -3,7 +3,7 @@ version: 2.1
 jobs:
   config_fortigate:
     machine: true
-    resource_class: iphonesekino-lab/fortigatetest001
+    resource_class: harutoendo/fotigate-resouce
     steps:
       - checkout
 
